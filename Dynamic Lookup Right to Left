@@ -1,0 +1,99 @@
+Option Explicit
+Sub rgt2left(control As IRibbonControl)
+UndoLA
+Dim row() As Variant            'Array Variable
+Dim col() As Variant            'Array Variable
+Dim rng1 As Range
+Dim tble As Range
+Dim mrng As Range
+Dim headr As String              'new
+Dim crws As String               'new
+Dim hd2 As String                'New
+Dim crwsn As String              'New
+Dim tsht As String
+Dim wbkn As String
+
+Dim fr As Long
+Dim lr As Long
+Dim fc As Long
+Dim lc As Long
+
+Dim ocol As Long
+Dim orow As Long
+Dim c As Long
+Dim r As Long
+
+Dim tfr As Long                 'new
+Dim tlr As Long
+Dim tfc As Long                 'new
+Dim tlc As Long                 'new
+Dim abc As String               'new
+Dim crws2 As Long               'new
+Dim crws3 As Long               'new
+
+
+On Error Resume Next
+Set rng1 = Application.InputBox("Select Lookup Range, Lookup column = Last column", "Dynamic Vlookup", Selection.Address, Type:=8)
+If TypeName(rng1) = "Nothing" Then Exit Sub
+
+
+Set tble = Application.InputBox("Select Source Table", "Dynamic Lookup", "", Type:=8)
+If TypeName(tble) = "Nothing" Then Exit Sub
+
+wbkn = GetWorkbookName(tble)
+tsht = tble.Worksheet.Name          'New
+tfr = tble.row
+tlr = tble.Rows.Count + tfr - 1
+tfc = tble.Column
+tlc = tble.Columns.Count + tfc - 1
+
+headr = Range(Cells(tfr, tfc), Cells(tfr, tlc)).Address   'new headr
+
+hd2 = "'[" & wbkn & "]" & tsht & "'!" & headr     'New
+
+Set mrng = Application.InputBox("Select Destination cell:", "Lookup Array", "", Type:=8)
+If TypeName(mrng) = "Nothing" Then Exit Sub
+
+
+fr = rng1.row                                       'First Row of lookup table
+lr = rng1.Rows.Count + fr - 1                       'Last row of lookup Table
+
+lc = rng1.Column                                    'Last column of lookup table
+fc = rng1.Columns.Count + lc - 1                    'First column of lookup table
+
+
+abc = Cells(fr, fc).Address
+crws2 = Application.WorksheetFunction.Match(Range(abc), Range(hd2), 0)  'New
+crws3 = tfc + crws2 - 1
+crws = Range(Cells(tfr, crws3), Cells(tlr, crws3)).Address                      'new common column
+crwsn = "'[" & wbkn & "]" & tsht & "'!" & crws        'New
+
+
+ReDim row(fr To lr)
+For r = fr To lr
+row(r) = Cells(r, fc)                                'Fill array values for rows
+Next r
+
+ReDim col(lc To fc)                                 'Fill array for columns
+For c = lc To fc
+col(c) = Cells(fr, c)
+Next c
+
+ocol = mrng.Column                                  'Outputcell column number
+orow = mrng.row                                     'Output cell row number
+
+speedon
+For c = ocol To fc - 1                                'from ocol to last column
+For r = orow To lr                                    'from orng to last row
+
+Cells(r, c) = Application.WorksheetFunction.Index(tble, WorksheetFunction.Match(row(r), Range(crwsn), 0), WorksheetFunction.Match(col(c), Range(hd2), 0))
+
+Next r
+Next c
+speedoff
+
+End Sub
+Private Function GetWorkbookName(myRange As Excel.Range) As String
+    GetWorkbookName = myRange.Worksheet.Parent.Name
+End Function
+
