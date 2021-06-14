@@ -1,0 +1,73 @@
+Public sht As String, Backup As String
+Sub UndoLastAction(control As IRibbonControl)
+Application.DisplayAlerts = False
+
+speedon
+
+Dim ws As Worksheet
+On Error Resume Next
+Sheets("Backup").Visible = xlSheetVisible
+
+For Each ws In Worksheets
+If ws.Name = "Backup" Then ws.Delete
+Next
+
+sht = ActiveSheet.Name
+
+ActiveSheet.Copy after:=Sheets(Sheets.Count)
+ActiveSheet.Name = "Backup"
+
+Backup = Sheets("Backup").Name
+Sheets("Backup").Visible = xlSheetVeryHidden
+
+Sheets(sht).Select
+Application.DisplayAlerts = True
+
+speedoff
+'MsgBox "Backup created"
+End Sub
+
+Sub Restore(control As IRibbonControl)
+speedon
+
+Application.DisplayAlerts = False
+On Error Resume Next
+
+Sheets("Backup").Visible = xlSheetVisible
+Sheets(sht).Delete
+Sheets("Backup").Name = sht
+
+Application.DisplayAlerts = True
+Sheets(sht).Select
+
+sht = ""
+speedoff
+
+End Sub
+Sub UndoLA()
+Application.DisplayAlerts = False
+
+speedon
+
+Dim ws As Worksheet
+On Error Resume Next
+Sheets("Backup").Visible = xlSheetVisible
+
+For Each ws In Worksheets
+If ws.Name = "Backup" Then ws.Delete
+Next
+
+sht = ActiveSheet.Name
+
+ActiveSheet.Copy after:=Sheets(Sheets.Count)
+ActiveSheet.Name = "Backup"
+
+Backup = Sheets("Backup").Name
+Sheets("Backup").Visible = xlSheetVeryHidden
+
+Sheets(sht).Select
+Application.DisplayAlerts = True
+
+speedoff
+'MsgBox "Backup created"
+End Sub
