@@ -1,0 +1,160 @@
+Sub AddItemContextMenu(control As IRibbonControl)
+    Dim ContextMenu As CommandBar
+    Dim New_Sub_Menu As CommandBarControl
+
+    ' If context menu has been created before, let's delete it to avoid duplicates.
+    Call DeleteItemContextMenu
+
+    ' Set ContextMenu variable for the cell context menu.
+    Set ContextMenu = Application.CommandBars("Cell")
+
+    '--------------------------------------------------------------------------------
+    ' Let's add a submenu with three buttons.
+    Set New_Sub_Menu = ContextMenu.Controls.Add(Type:=msoControlPopup, before:=1)
+
+    With New_Sub_Menu
+    
+        .Caption = "Changing Case"
+        .Tag = "New_Item_Context_Menu"
+
+        With .Controls.Add(Type:=msoControlButton)
+            .OnAction = "'" & ThisWorkbook.Name & "'!" & "UpperMacro"
+            .FaceId = 100
+            .Caption = "Upper Case"
+        End With
+        With .Controls.Add(Type:=msoControlButton)
+            .OnAction = "'" & ThisWorkbook.Name & "'!" & "LowerMacro"
+            .FaceId = 91
+            .Caption = "Lower Case"
+        End With
+        With .Controls.Add(Type:=msoControlButton)
+            .OnAction = "'" & ThisWorkbook.Name & "'!" & "ProperMacro"
+            .FaceId = 95
+            .Caption = "Proper Case"
+        End With
+    End With
+
+    '----------------------------------------------------------------------------
+    ' New button for context menu.
+       With ContextMenu.Controls.Add(Type:=msoControlButton, before:=2)
+     .OnAction = "'" & ThisWorkbook.Name & "'!" & "Index_Code"
+     .FaceId = 1087
+     .Caption = "Sheet Index"
+     .Tag = "New_Item_Context_Menu"
+     End With
+     
+ContextMenu.Controls(5).BeginGroup = True
+End Sub
+
+Sub DeleteItemContextMenu()
+    Dim ContextMenu As CommandBar
+    Dim ctrl As CommandBarControl
+
+    ' Set ContextMenu for cell context menu.
+    Set ContextMenu = Application.CommandBars("Cell")
+
+    ' Delete the custom controls with the Tag : New_Item_Context_Menu.
+    For Each ctrl In ContextMenu.Controls
+        If ctrl.Tag = "New_Item_Context_Menu" Then
+            ctrl.Delete
+        End If
+    Next ctrl
+
+   'ContextMenu.Reset
+End Sub
+
+Sub UpperMacro()
+    Dim CaseRange As Range
+    Dim CalcMode As Long
+    Dim cell As Range
+
+    On Error Resume Next
+    Set CaseRange = Intersect(Selection, _
+        Selection.Cells.SpecialCells(xlCellTypeConstants, xlTextValues))
+    On Error GoTo 0
+    If CaseRange Is Nothing Then Exit Sub
+
+    With Application
+        CalcMode = .Calculation
+        .Calculation = xlCalculationManual
+        .ScreenUpdating = False
+        .EnableEvents = False
+    End With
+
+    For Each cell In CaseRange.Cells
+        cell.value = UCase(cell.value)
+    Next cell
+
+    With Application
+        .ScreenUpdating = True
+        .EnableEvents = True
+        .Calculation = CalcMode
+    End With
+End Sub
+
+Sub LowerMacro()
+    Dim CaseRange As Range
+    Dim CalcMode As Long
+    Dim cell As Range
+
+    On Error Resume Next
+    Set CaseRange = Intersect(Selection, _
+        Selection.Cells.SpecialCells(xlCellTypeConstants, xlTextValues))
+    On Error GoTo 0
+    If CaseRange Is Nothing Then Exit Sub
+
+    With Application
+        CalcMode = .Calculation
+        .Calculation = xlCalculationManual
+        .ScreenUpdating = False
+        .EnableEvents = False
+    End With
+
+    For Each cell In CaseRange.Cells
+        cell.value = LCase(cell.value)
+    Next cell
+
+    With Application
+        .ScreenUpdating = True
+        .EnableEvents = True
+        .Calculation = CalcMode
+    End With
+End Sub
+
+Sub ProperMacro()
+    Dim CaseRange As Range
+    Dim CalcMode As Long
+    Dim cell As Range
+
+    On Error Resume Next
+    Set CaseRange = Intersect(Selection, _
+        Selection.Cells.SpecialCells(xlCellTypeConstants, xlTextValues))
+    On Error GoTo 0
+    If CaseRange Is Nothing Then Exit Sub
+
+    With Application
+        CalcMode = .Calculation
+        .Calculation = xlCalculationManual
+        .ScreenUpdating = False
+        .EnableEvents = False
+    End With
+
+    For Each cell In CaseRange.Cells
+        cell.value = StrConv(cell.value, vbProperCase)
+    Next cell
+
+    With Application
+        .ScreenUpdating = True
+        .EnableEvents = True
+        .Calculation = CalcMode
+    End With
+End Sub
+Sub Index_Code()
+' If ActiveWorkbook.Sheets.Count > 16 Then
+' MsgBox "This can only display 16 worksheets." & vbNewLine & "The current worksheet count is more then 16", vbInformation
+' Exit Sub
+''Application.CommandBars("Workbook Tabs").Controls("More Sheets…").Execute
+'Else
+Application.CommandBars("Workbook Tabs").ShowPopup
+'End If
+End Sub
