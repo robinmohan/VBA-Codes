@@ -1,0 +1,71 @@
+Private Function r_color_vlookup(r1 As Range, r2 As Range, n As Integer, a As Boolean) As Variant
+
+Application.Volatile
+
+Dim cel As Range
+Dim i As Integer
+i = 0
+For Each cel In r2
+    If cel.Interior.Color = r1.Interior.Color Then
+        r_color_vlookup = cel.Offset(0, n - 1).value
+        i = i + 1
+        If a = False Then
+        Exit For
+        End If
+    End If
+
+Next
+
+If i = 0 Then r_color_vlookup = "#N/A"
+
+End Function
+Sub Colorlookup(control As IRibbonControl)
+'closeaddin
+UndoLA
+Dim rng1 As Range
+Dim tbrng As Range
+Dim mrng As Range
+Dim crng As Range
+
+Dim r As Long
+Dim fr As Long
+Dim lr As Long
+Dim col As Integer
+Dim col2 As Integer
+Dim col1 As Integer
+
+
+On Error Resume Next
+Set rng1 = Application.InputBox("Select Lookup Range:", "Color Lookup", Selection.Address, Type:=8)
+If TypeName(rng1) = "Nothing" Then Exit Sub
+
+Set tbrng = Application.InputBox("Select From Source Range:", "Color Lookup", "", Type:=8)
+If TypeName(tbrng) = "Nothing" Then Exit Sub
+
+Set crng = Application.InputBox("Select Get data from column:", "Color Lookup", "", Type:=8)
+If TypeName(crng) = "Nothing" Then Exit Sub
+
+Set mrng = Application.InputBox("Select Destination cell:", "Color Lookup", "", Type:=8)
+If TypeName(mrng) = "Nothing" Then Exit Sub
+
+'col2 = crng.Column
+
+'mrng = r_color_vlookup(rng1, tbrng, col, False)
+
+
+fr = rng1.row                                 'First Row
+col = rng1.Column                             'First column
+lr = rng1.Rows.Count + fr - 1                 'Lastrow
+
+col1 = crng.Column                            'data need from column number
+'tcol = tbrng.Column                           'table range column number
+ocol = mrng.Column                            'output column number
+
+speedon
+For i = fr To lr
+Cells(i, ocol) = r_color_vlookup(Cells(i, col), tbrng, col1, False)
+Next i
+speedoff
+
+End Sub
+
